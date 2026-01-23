@@ -74,7 +74,7 @@
   color: #333;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
-  cursor: default;
+  cursor: pointer;
   position: relative;
 }
 
@@ -287,6 +287,93 @@
 
 .submit-review-btn:hover {
   background-color: #6d5435;
+}
+
+/* Модалка с отзывами */
+.reviews-modal {
+  max-width: 600px;
+}
+
+.reviews-container {
+  margin-top: 1.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.review-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  position: relative;
+}
+
+.review-card:last-child {
+  margin-bottom: 0;
+}
+
+.review-rating {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.rating-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #8b6f47;
+}
+
+.rating-max {
+  font-size: 1rem;
+  color: #888;
+}
+
+.review-comment {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+.review-delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  line-height: 1;
+  padding: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.review-delete-btn:hover {
+  background-color: #ff4444;
+  color: white;
 }
 
 @media (max-width: 768px) {

@@ -32,7 +32,9 @@ interface ReviewsData {
 function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
   const [selectedCoffeeId, setSelectedCoffeeId] = useState<number | "">("");
+  const [viewingCoffeeId, setViewingCoffeeId] = useState<number | null>(null);
   const [rating, setRating] = useState<number>(5);
   const [comment, setComment] = useState("");
   const [coffeeSearchTerm, setCoffeeSearchTerm] = useState("");
@@ -133,13 +135,72 @@ function App() {
 
     localStorage.setItem("reviews", JSON.stringify(reviewsData));
     setReviews(reviewsData); // Обновляем состояние
+    
+    // Сохраняем ID кофе перед закрытием модалки
+    const savedCoffeeId = selectedCoffeeId;
+    
     handleCloseModal();
-    alert("Отзыв успешно сохранен!");
+    
+    // Открываем модалку с отзывами для созданного кофе
+    setTimeout(() => {
+      setViewingCoffeeId(savedCoffeeId as number);
+      setIsReviewsModalOpen(true);
+    }, 0);
   };
 
   const selectedCoffee = coffeeList.find(
     (coffee) => coffee.id === selectedCoffeeId,
   );
+
+  const handleCoffeeCardClick = (coffeeId: number) => {
+    setViewingCoffeeId(coffeeId);
+    setIsReviewsModalOpen(true);
+  };
+
+  const handleCloseReviewsModal = () => {
+    setIsReviewsModalOpen(false);
+    setViewingCoffeeId(null);
+  };
+
+  const getCoffeeReviews = (coffeeId: number): Review[] => {
+    const coffeeIdString = String(coffeeId);
+    const coffeeReviews = reviews[coffeeIdString] || [];
+    // Сортируем отзывы: самые последние наверху
+    // Извлекаем timestamp из id (формат: "timestamp-randomstring")
+    return [...coffeeReviews].sort((a, b) => {
+      const timestampA = parseInt(a.id.split('-')[0]) || 0;
+      const timestampB = parseInt(b.id.split('-')[0]) || 0;
+      return timestampB - timestampA; // Сортировка по убыванию (новые первыми)
+    });
+  };
+
+  const handleDeleteReview = (reviewId: string, coffeeId: number) => {
+    const reviewsData: ReviewsData = JSON.parse(
+      localStorage.getItem("reviews") || "{}",
+    );
+    const coffeeIdString = String(coffeeId);
+    
+    if (reviewsData[coffeeIdString]) {
+      reviewsData[coffeeIdString] = reviewsData[coffeeIdString].filter(
+        (review) => review.id !== reviewId
+      );
+      
+      // Если отзывов не осталось, можно удалить ключ или оставить пустой массив
+      if (reviewsData[coffeeIdString].length === 0) {
+        delete reviewsData[coffeeIdString];
+      }
+      
+      localStorage.setItem("reviews", JSON.stringify(reviewsData));
+      setReviews(reviewsData);
+    }
+  };
+
+  const viewingCoffee = viewingCoffeeId
+    ? coffeeList.find((coffee) => coffee.id === viewingCoffeeId)
+    : null;
+  const coffeeReviews = viewingCoffeeId
+    ? getCoffeeReviews(viewingCoffeeId)
+    : [];
 
   return (
     <div className="app">
@@ -160,7 +221,11 @@ function App() {
           filteredCoffee.map((coffee) => {
             const averageRating = getAverageRating(coffee.id);
             return (
-              <div key={coffee.id} className="coffee-card">
+              <div
+                key={coffee.id}
+                className="coffee-card"
+                onClick={() => handleCoffeeCardClick(coffee.id)}
+              >
                 {averageRating !== null && (
                   <div className="rating-circle">{averageRating}</div>
                 )}
@@ -259,6 +324,46 @@ function App() {
             >
               Оставить отзыв
             </button>
+          </div>
+        </div>
+      )}
+
+      {isReviewsModalOpen && viewingCoffee && (
+        <div className="modal-overlay" onClick={handleCloseReviewsModal}>
+          <div className="modal-content reviews-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={handleCloseReviewsModal}>
+              ×
+            </button>
+            <h2>
+              {viewingCoffee.name} - {viewingCoffee.description}
+            </h2>
+            <div className="reviews-container">
+              {coffeeReviews.length > 0 ? (
+                coffeeReviews.map((review) => (
+                  <div key={review.id} className="review-card">
+                    <button
+                      className="review-delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (viewingCoffeeId) {
+                          handleDeleteReview(review.id, viewingCoffeeId);
+                        }
+                      }}
+                      title="Удалить отзыв"
+                    >
+                      ×
+                    </button>
+                    <div className="review-rating">
+                      <span className="rating-value">{review.rating}</span>
+                      <span className="rating-max">/10</span>
+                    </div>
+                    <div className="review-comment">{review.comment}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-reviews">Отзывов пока нет</div>
+              )}
+            </div>
           </div>
         </div>
       )}
