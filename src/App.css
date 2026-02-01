@@ -376,6 +376,331 @@
   color: white;
 }
 
+/* Кнопка "Мне повезёт" */
+.lucky-btn {
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.lucky-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+/* Модальное окно "Мне повезёт" */
+.lucky-overlay {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.lucky-modal {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 900px;
+  width: 95%;
+  position: relative;
+  color: white;
+  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+}
+
+.lucky-modal h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #feca57;
+}
+
+.lucky-modal .modal-close {
+  color: #888;
+}
+
+.lucky-modal .modal-close:hover {
+  color: white;
+}
+
+/* Контейнер карусели */
+.carousel-container {
+  position: relative;
+  margin: 2rem 0;
+}
+
+/* Указатель (стрелка сверху) */
+.carousel-pointer {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 20px solid #feca57;
+  z-index: 10;
+  filter: drop-shadow(0 0 10px rgba(254, 202, 87, 0.8));
+}
+
+.carousel-pointer::after {
+  content: '';
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 100px;
+  background: linear-gradient(to bottom, #feca57, transparent);
+  z-index: 9;
+}
+
+/* Viewport карусели */
+.carousel-viewport {
+  overflow: hidden;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+  padding: 1rem 0;
+  position: relative;
+  border: 2px solid #333;
+}
+
+/* Градиенты по краям */
+.carousel-viewport::before,
+.carousel-viewport::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.carousel-viewport::before {
+  left: 0;
+  background: linear-gradient(to right, #0f0f1a, transparent);
+}
+
+.carousel-viewport::after {
+  right: 0;
+  background: linear-gradient(to left, #0f0f1a, transparent);
+}
+
+/* Дорожка карусели */
+.carousel-track {
+  display: flex;
+  gap: 10px;
+  /* Начальный отступ: при translateX(0) первая карточка по центру */
+  /* 50vw - половина viewport, 80px - половина карточки (160/2) */
+  /* Но viewport модалки ≈ 900px, так что примерно 450px - 80px = 370px */
+  /* Используем calc для точности */
+  margin-left: calc(50% - 80px);
+}
+
+/* Карточка в карусели */
+.carousel-card {
+  flex-shrink: 0;
+  width: 160px;
+  height: 140px;
+  background: linear-gradient(145deg, #2a2a4a, #1f1f35);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #444;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.carousel-card.winner {
+  border-color: #feca57;
+  box-shadow: 0 0 20px rgba(254, 202, 87, 0.6);
+}
+
+.carousel-card-flag {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-card-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+.carousel-card-desc {
+  font-size: 0.75rem;
+  color: #aaa;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* Кнопка "Крутить" */
+.spin-btn {
+  display: block;
+  margin: 1.5rem auto 0;
+  padding: 1rem 3rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: pulse 2s infinite;
+}
+
+.spin-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 107, 107, 0.6);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 107, 107, 0.8);
+  }
+}
+
+/* Текст во время вращения */
+.spinning-text {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #feca57;
+  margin-top: 1.5rem;
+  animation: blink 0.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Результат победителя */
+.winner-result {
+  text-align: center;
+  margin-top: 2rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.winner-result h3 {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+}
+
+.winner-card {
+  display: inline-block;
+  background: linear-gradient(145deg, #2a2a4a, #1f1f35);
+  border: 3px solid #feca57;
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  box-shadow: 
+    0 0 40px rgba(254, 202, 87, 0.4),
+    inset 0 0 30px rgba(254, 202, 87, 0.1);
+  animation: winnerGlow 2s ease-in-out infinite;
+}
+
+@keyframes winnerGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 40px rgba(254, 202, 87, 0.4),
+      inset 0 0 30px rgba(254, 202, 87, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 60px rgba(254, 202, 87, 0.6),
+      inset 0 0 40px rgba(254, 202, 87, 0.15);
+  }
+}
+
+.winner-flag {
+  font-size: 3.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.winner-name {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.winner-desc {
+  font-size: 1.1rem;
+  color: #bbb;
+}
+
+.winner-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.spin-again-btn {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: transparent;
+  color: #feca57;
+  border: 2px solid #feca57;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.spin-again-btn:hover {
+  background: #feca57;
+  color: #1a1a2e;
+  transform: scale(1.05);
+}
+
+.close-lucky-btn {
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-lucky-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+}
+
 @media (max-width: 768px) {
   .app {
     padding: 1rem;
@@ -395,7 +720,8 @@
     flex-direction: column;
   }
 
-  .add-review-btn {
+  .add-review-btn,
+  .lucky-btn {
     width: 100%;
     max-width: 500px;
   }
@@ -403,5 +729,38 @@
   .modal-content {
     padding: 1.5rem;
     width: 95%;
+  }
+
+  .lucky-modal {
+    padding: 1.5rem 1rem;
+  }
+
+  .carousel-card {
+    width: 120px;
+    height: 110px;
+    padding: 0.75rem;
+  }
+
+  .carousel-card-flag {
+    font-size: 1.5rem;
+  }
+
+  .carousel-card-name {
+    font-size: 0.8rem;
+  }
+
+  .carousel-card-desc {
+    font-size: 0.65rem;
+  }
+
+  .carousel-track {
+    gap: 8px;
+    /* На мобильных карточка 120px, половина = 60px */
+    margin-left: calc(50% - 60px);
+  }
+
+  .carousel-viewport::before,
+  .carousel-viewport::after {
+    width: 50px;
   }
 }

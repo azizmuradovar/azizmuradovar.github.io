@@ -41,6 +41,12 @@ function App() {
   const [isCoffeeSelectOpen, setIsCoffeeSelectOpen] = useState(false);
   const [reviews, setReviews] = useState<ReviewsData>({});
   const selectRef = useRef<HTMLDivElement>(null);
+  
+  // Состояния для "Мне повезёт"
+  const [isLuckyModalOpen, setIsLuckyModalOpen] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [luckyWinner, setLuckyWinner] = useState<number | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   // Загрузка отзывов из localStorage
   useEffect(() => {
@@ -202,6 +208,81 @@ function App() {
     ? getCoffeeReviews(viewingCoffeeId)
     : [];
 
+  // Логика "Мне повезёт"
+  const handleOpenLuckyModal = () => {
+    setIsLuckyModalOpen(true);
+    setLuckyWinner(null);
+    setIsSpinning(false);
+  };
+
+  const handleCloseLuckyModal = () => {
+    setIsLuckyModalOpen(false);
+    setIsSpinning(false);
+    setLuckyWinner(null);
+  };
+
+  const handleStartSpin = () => {
+    if (isSpinning || !carouselRef.current) return;
+    
+    setIsSpinning(true);
+    setLuckyWinner(null);
+
+    const track = carouselRef.current;
+    const cards = track.querySelectorAll('.carousel-card');
+    if (cards.length < 2) return;
+    
+    // Получаем реальный шаг между карточками из DOM
+    const card0 = cards[0].getBoundingClientRect();
+    const card1 = cards[1].getBoundingClientRect();
+    const cardStep = card1.left - card0.left;
+    
+    const totalSpins = 4;
+    
+    // Выбираем случайный индекс победителя
+    const winnerIndex = Math.floor(Math.random() * coffeeList.length);
+    
+    // Индекс карточки в carouselItems (после нескольких полных оборотов)
+    const targetIndex = totalSpins * coffeeList.length + winnerIndex;
+    
+    // Простое смещение: index * шаг
+    const finalOffset = targetIndex * cardStep;
+
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0)';
+    
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        track.style.transition = 'transform 5s cubic-bezier(0.15, 0.85, 0.3, 1)';
+        track.style.transform = `translateX(-${finalOffset}px)`;
+      });
+    });
+
+    // Победитель — карточка под указателем
+    const winnerCoffee = coffeeList[winnerIndex];
+    
+    setTimeout(() => {
+      setIsSpinning(false);
+      setLuckyWinner(winnerCoffee.id);
+    }, 5000);
+  };
+
+  // Генерируем карточки для карусели (много повторений)
+  const generateCarouselItems = () => {
+    const items = [];
+    const repeats = 15; // Достаточно для длинной анимации
+    for (let i = 0; i < repeats; i++) {
+      for (const coffee of coffeeList) {
+        items.push({ ...coffee, key: `${i}-${coffee.id}` });
+      }
+    }
+    return items;
+  };
+
+  const carouselItems = generateCarouselItems();
+  const luckyWinnerCoffee = luckyWinner 
+    ? coffeeList.find(c => c.id === luckyWinner) 
+    : null;
+
   return (
     <div className="app">
       <div className="search-container">
@@ -212,6 +293,9 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
+        <button className="lucky-btn" onClick={handleOpenLuckyModal}>
+          🎰 Мне повезёт
+        </button>
         <button className="add-review-btn" onClick={handleOpenModal}>
           + отзыв
         </button>
@@ -364,6 +448,68 @@ function App() {
                 <div className="no-reviews">Отзывов пока нет</div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модальное окно "Мне повезёт" */}
+      {isLuckyModalOpen && (
+        <div className="modal-overlay lucky-overlay" onClick={handleCloseLuckyModal}>
+          <div className="lucky-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={handleCloseLuckyModal}>
+              ×
+            </button>
+            <h2>🎰 Мне повезёт!</h2>
+            
+            <div className="carousel-container">
+              {/* Указатель */}
+              <div className="carousel-pointer"></div>
+              
+              {/* Карусель */}
+              <div className="carousel-viewport">
+                <div className="carousel-track" ref={carouselRef}>
+                  {carouselItems.map((coffee) => (
+                    <div 
+                      key={coffee.key} 
+                      className={`carousel-card ${luckyWinner === coffee.id ? 'winner' : ''}`}
+                    >
+                      <div className="carousel-card-flag">{getCountryFlag(coffee.country)}</div>
+                      <div className="carousel-card-name">{coffee.name}</div>
+                      <div className="carousel-card-desc">{coffee.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {!isSpinning && !luckyWinner && (
+              <button className="spin-btn" onClick={handleStartSpin}>
+                🎲 Крутить!
+              </button>
+            )}
+
+            {isSpinning && (
+              <div className="spinning-text">Выбираем кофе...</div>
+            )}
+
+            {luckyWinner && luckyWinnerCoffee && (
+              <div className="winner-result">
+                <h3>🎉 Ваш кофе сегодня:</h3>
+                <div className="winner-card">
+                  <div className="winner-flag">{getCountryFlag(luckyWinnerCoffee.country)}</div>
+                  <div className="winner-name">{luckyWinnerCoffee.name}</div>
+                  <div className="winner-desc">{luckyWinnerCoffee.description}</div>
+                </div>
+                <div className="winner-actions">
+                  <button className="spin-again-btn" onClick={handleStartSpin}>
+                    🔄 Ещё раз
+                  </button>
+                  <button className="close-lucky-btn" onClick={handleCloseLuckyModal}>
+                    ✓ Отлично!
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
